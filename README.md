@@ -71,12 +71,6 @@ Em cada teste, tem uma breve descrição no que sua aplicação deve�
 Se você achou algum trecho de código confuso ou pensou em uma melhor solução, sinta-se livre para também refatorar.
 
 </aside>
-
-<aside>
-💡 Caso você tenha dúvidas quanto ao que são os testes, e como interpretá-los, dê uma olhada em **[nosso FAQ](https://www.notion.so/FAQ-Desafios-ddd8fcdf2339436a816a0d9e45767664)**
-
-</aside>
-
 Para esse desafio, temos os seguintes testes:
 
 ### Testes de repositórios
