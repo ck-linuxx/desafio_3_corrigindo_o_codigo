@@ -1,20 +1,31 @@
 # 💻 Sobre o desafio
 
-Nesse desafio você irá trabalhar mais a fundo com middlewares no Express. Dessa forma você será capaz de fixar mais ainda os conhecimentos obtidos até agora. 
+Nesse desafio, temos uma aplicação Node.js que está em processo de desenvolvimento mas que já possui os testes necessários para fazer toda a validação dos requisitos (você não deve mexer nos testes).
+Após algumas alterações no código da aplicação, parte dos testes deixaram de passar e agora só você pode resolver esse problema. Bora lá? 🚀
 
-Para facilitar um pouco mais do conhecimento da regra de negócio, você irá trabalhar com a mesma aplicação do desafio anterior: uma aplicação para gerenciar tarefas (ou *todos*) mas com algumas mudanças.
+Essa aplicação realiza o CRUD (**C**reate, **R**ead, **U**pdate, **D**elete) de repositórios de projetos. Além disso, é possível dar likes em repositórios cadastrados, aumentando a quantidade de likes em 1 a cada vez que a rota é chamada.
 
-Será permitida a criação de um usuário com `name` e `username`, bem como fazer o CRUD de *todos*:
+A estrutura de um repositório ao ser criado é a seguinte: 
 
-- Criar um novo *todo*;
-- Listar todos os *todos*;
-- Alterar o `title` e `deadline` de um *todo* existente;
-- Marcar um *todo* como feito;
-- Excluir um *todo*;
+```jsx
+{
+  id: uuid(),
+  title,
+  url,
+  techs,
+  likes: 0
+}
+```
 
-Tudo isso para cada usuário em específico. Além disso, dessa vez teremos um plano grátis onde o usuário só pode criar até dez *todos* e um plano Pro que irá permitir criar *todos* ilimitados, isso tudo usando middlewares para fazer as validações necessárias.
+Descrição de cada propriedade:
 
-A seguir veremos com mais detalhes o que e como precisa ser feito 🚀
+- **id** deve ser um uuid válido;
+- **title** é o título do repositório (por exemplo "unform");
+- **url** é a URL que aponta para o repositório (por exemplo "[https://github.com/unform/unform](https://github.com/unform/unform)");
+- **techs** é um array onde cada elemento deve ser uma string com o nome de uma tecnologia relacionada ao repositório (por exemplo: ["react", "react-native", "form"]);
+- **likes** é a quantidade de likes que o repositório recebeu (e que vai ser incrementada de 1 em 1 a cada chamada na rota de likes).
+
+Note que a quantidade de likes deve sempre ser zero no momento de criação.
 
 ## Template da aplicação
 
@@ -22,110 +33,152 @@ Para realizar esse desafio, criamos para você esse modelo que você deve utiliz
 
 O template está disponível na seguinte URL: 
 
-[rocketseat-education/ignite-template-trabalhando-com-middlewares](https://github.com/rocketseat-education/ignite-template-trabalhando-com-middlewares)
+[rocketseat-education/ignite-template-corrigindo-o-codigo](https://github.com/rocketseat-education/ignite-template-corrigindo-o-codigo)
 
 **Dica**: Caso não saiba utilizar repositórios do GitHub como template, temos um guia em **[nosso FAQ](https://www.notion.so/FAQ-Desafios-ddd8fcdf2339436a816a0d9e45767664).**
 
 Agora navegue até a pasta criada, abra no Visual Studio Code e por último abra o arquivo `index.js`. Lembre-se de executar o comando `yarn` no seu terminal para instalar todas as dependências e você terá o seguinte código:
 
-![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/db31d611-26f4-41a4-95be-631f56cc8983/Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/db31d611-26f4-41a4-95be-631f56cc8983/Untitled.png)
+![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/da547593-34b3-459a-b15b-d596e5086c37/Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/da547593-34b3-459a-b15b-d596e5086c37/Untitled.png)
 
-## Middlewares da aplicação
+## Rotas da aplicação
 
 Com o template já clonado e o arquivo `index.js` aberto, você deve completar onde não possui código com o código para atingir os objetivos de cada teste.
 
-Nesse desafio não será necessário alterar o código de nenhuma rota, **apenas dos middlewares**. Os testes irão também testar o funcionamento das rotas mas o resultado depende apenas da dos middlewares.
+### GET `/repositories`
 
-### checksExistsUserAccount
+A rota deve retornar uma lista contendo todos os repositórios cadastrados.
 
-Esse middleware é responsável por receber o username do usuário pelo header e validar se existe ou não um usuário com o username passado. Caso exista, o usuário deve ser repassado para o request e a função next deve ser chamada.
+### POST `/repositories`
 
-### checksCreateTodosUserAvailability
+A rota deve receber `title`, `url` e `techs` pelo corpo da requisição e retornar um objeto com as informações do repositório criado e um status `201`.
 
-Esse middleware deve receber o **usuário** já dentro do request e chamar a função next apenas se esse usuário ainda estiver no **plano grátis e ainda não possuir 10 *todos* cadastrados** ou se ele **já estiver com o plano Pro ativado**. 
+### PUT `/repositories/:id`
 
-### checksTodoExists
+A rota deve receber `title`, `url` e `techs` pelo corpo da requisição e o `id` do repositório que deve ser atualizado pelo parâmetro da rota. Deve alterar apenas as informações recebidas pelo corpo da requisição e retornar esse repositório atualizado.
 
-Esse middleware deve receber o **username** de dentro do header e o **id** de um *todo* de dentro de `request.params`. Você deve validar o usuário, validar que o `id` seja um uuid e também validar que esse `id` pertence a um *todo* do usuário informado.
+### DELETE `/repositories/:id`
 
-Com todas as validações passando, o *todo* encontrado deve ser passado para o `request` assim como o usuário encontrado também e a função next deve ser chamada.
+A rota deve receber, pelo parâmetro da rota, o `id` do repositório que deve ser excluído e retornar um status `204` após a exclusão.
 
-### findUserById
+### POST `/repositories/:id/like`
 
-Esse middleware possui um funcionamento semelhante ao middleware `checksExistsUserAccount` mas a busca pelo usuário deve ser feita através do **id** de um usuário passado por parâmetro na rota. Caso o usuário tenha sido encontrado, o mesmo deve ser repassado para dentro do `request.user` e a função next deve ser chamada.
+A rota deve receber, pelo parâmetro da rota, o `id` do repositório que deve receber o like e retornar o repositório com a quantidade de likes atualizada.
 
 ## Específicação dos testes
 
-Para esse desafio, temos os seguintes testes:
-
-### Testes dos middlewares
-
-- **Should be able to find user by username in header and pass it to request.user**
-    
-    Para que esse teste passe, você deve permitir que o middleware **checksExistsUserAccount** receba um username pelo header do request e caso um usuário com o mesmo username exista, ele deve ser colocado dentro de `request.user` e, ao final, retorne a chamada da função `next`.
-    
-    Atente-se bem para o nome da propriedade que armazenará o objeto `user` no request.
-    
-- **Should not be able to find a non existing user by username in header**
-    
-    Para que esse teste passe, no middleware **checksExistsUserAccount** você deve retornar uma resposta com status `404` caso o username passado pelo header da requisição não pertença a nenhum usuário. Você pode também retornar uma mensagem de erro mas isso é opcional.
-    
-- **Should be able to let user create a new todo when is in free plan and have less than ten todos**
-    
-    Para que esse teste passe, você deve permitir que o middleware **checksCreateTodosUserAvailability** receba o objeto `user` (considere sempre que o objeto existe) da `request` e chame a função `next` somente no caso do usuário estar no **plano grátis e ainda não possuir 10 *todos* cadastrados** ou se ele **já estiver com o plano Pro ativado**.
-    
-    <aside>
-    💡 Você pode verificar se o usuário possui um plano Pro ou não a partir da propriedade `user.pro`. Caso seja `true` significa que o plano Pro está em uso.
-    
-    </aside>
-    
-- **Should not be able to let user create a new todo when is not Pro and already have ten todos**
-    
-    Para que esse teste passe, no middleware **checksCreateTodosUserAvailability** você deve retornar uma resposta com status `403` caso o usuário recebido pela requisição esteja no **plano grátis** e **já tenha 10 *todos* cadastrados**. Você pode também retornar uma mensagem de erro mas isso é opcional.
-    
-- **Should be able to let user create infinite new todos when is in Pro plan**
-    
-    Para que esse teste passe, você deve permitir que o middleware **checksCreateTodosUserAvailability** receba o objeto `user` (considere sempre que o objeto existe) da `request` e chame a função `next` caso o usuário já esteja com o plano Pro. 
-    
-    <aside>
-    💡 Se você satisfez os dois testes anteriores antes desse, ele já deve passar também.
-    
-    </aside>
-    
-- **Should be able to put user and todo in request when both exits**
-    
-    Para que esse teste passe, o middleware **checksTodoExists** deve receber o `username` de dentro do header e o `id` de um *todo* de dentro de `request.params`. Você deve validar que o usuário exista, validar que o `id` seja um uuid e também validar que esse `id` pertence a um *todo* do usuário informado.
-    
-    Com todas as validações passando, o *todo* encontrado deve ser passado para o `request` assim como o usuário encontrado também e a função next deve ser chamada.
-    
-    É importante que você coloque dentro de `request.user` o usuário encontrado e dentro de `request.todo` o *todo* encontrado.
-    
-- **Should not be able to put user and todo in request when user does not exists**
-    
-    Para que esse teste passe, no middleware **checksTodoExists** você deve retornar uma resposta com status `404` caso não exista um usuário com o `username` passado pelo header da requisição.
-    
-- **Should not be able to put user and todo in request when todo id is not uuid**
-    
-    Para que esse teste passe, no middleware **checksTodoExists** você deve retornar uma resposta com status `400` caso o `id` do *todo* passado pelos parâmetros da requisição não seja um UUID válido (por exemplo `1234abcd`).
-    
-- **Should not be able to put user and todo in request when todo does not exists**
-    
-    Para que esse teste passe, no middleware **checksTodoExists** você deve retornar uma resposta com status `404` caso o `id` do *todo* passado pelos parâmetros da requisição não pertença a nenhum *todo* do usuário encontrado.
-    
-- **Should be able to find user by id route param and pass it to request.user**
-    
-    Para que esse teste passe, o middleware **findUserById** deve receber o `id` de um usuário de dentro do `request.params`. Você deve validar que o usuário exista, repassar ele para `request.user` e retornar a chamada da função next.
-    
-- **Should not be able to pass user to request.user when it does not exists**
-    
-    Para que esse teste passe, no middleware **findUserById** você deve retornar uma resposta com status `404` caso o `id` do usuário **passado pelos parâmetros da requisição não pertença a nenhum usuário cadastrado.
-    
-
----
-
-Todos os demais testes são os mesmos testes encontrados no desafio 01 com algumas (ou nenhuma) mudanças.
+Em cada teste, tem uma breve descrição no que sua aplicação deve cumprir para que o teste passe.
 
 <aside>
-⚠️  Vale reforçar que esse desafio é focado apenas em middlewares e você não precisa modificar o conteúdo das rotas para que os testes passem 💜
+⚠️ Note que partes da aplicação já estão prontas e você precisará alterar apenas o que está errado (ou implementar algo que esteja faltando). 
+
+Se você achou algum trecho de código confuso ou pensou em uma melhor solução, sinta-se livre para também refatorar.
 
 </aside>
+
+<aside>
+💡 Caso você tenha dúvidas quanto ao que são os testes, e como interpretá-los, dê uma olhada em **[nosso FAQ](https://www.notion.so/FAQ-Desafios-ddd8fcdf2339436a816a0d9e45767664)**
+
+</aside>
+
+Para esse desafio, temos os seguintes testes:
+
+### Testes de repositórios
+
+- **Should be able to create a new repository**
+
+Para que esse teste passe, você deve permitir que um novo repositório seja cadastrado pela rota **POST** `/repositories`. Caso precise confirmar o formato do objeto, você pode olhar [aqui.](https://www.notion.so/Desafio-03-Corrigindo-o-c-digo-c15c8a2e212846039a367cc7b763c6dd) 
+
+Também é necessário que você retorne a resposta com o código `201`.
+
+- **Should be able to list the projects**
+
+Para que esse teste passe, é necessário que você conclua o teste anterior. Se tudo ocorreu bem, os repositórios cadastrados deverão aparecerem na listagem da rota **GET** `/repositories` e esse teste irá passar.
+
+- **Should be able to update repository**
+
+Para que esse teste passe, você deve permitir que um repositório seja atualizado a partir de seu `id` pela rota **PUT** `/repositories/:id` usando as [informações recebidas pelo corpo da requisição](https://www.notion.so/Desafio-03-Corrigindo-o-c-digo-c15c8a2e212846039a367cc7b763c6dd). Lembre-se de manter as informações que não foram passadas pelo corpo, por exemplo:
+Se o usuário quiser trocar apenas o `title`, mantenha `url` e `techs` que já estavam no repositório.
+
+- **Should not be able to update a non existing repository**
+
+Para que esse teste passe, você deve verificar se o repositório existe antes de atualizar as informações na rota **PUT** `/repositories/:id`. Caso não exista, retorne um status `404` (que é o status para **Not Found**) com uma mensagem de erro no formato `{ error: "Mensagem do erro" }`.
+
+- **Should not be able to update repository likes manually**
+
+Para que esse teste passe, você deve impedir que a quantidade de likes de um repositório seja alterada manualmente através da rota **PUT** `/repositories/:id`.
+Por exemplo:
+
+**Errado:**
+
+```jsx
+// Repositório recém criado:
+{
+	id: "c160a99b-9d3b-4669-8a35-8dce1e8196ec",
+	title: "Umbriel",
+	techs: ["React", "ReactNative", "TypeScript", "ContextApi"],
+	url: "https://github.com/Rocketseat/umbriel",
+	likes: 0
+}
+
+// Requisição para alterar informações: 
+// Rota: "/repositories/c160a99b-9d3b-4669-8a35-8dce1e8196ec"
+// Método: PUT
+// Corpo: { title: "Novo título", likes: 10 }
+
+// Retorno:
+
+{
+	id: "c160a99b-9d3b-4669-8a35-8dce1e8196ec",
+	title: "Novo título",
+	techs: ["React", "ReactNative", "TypeScript", "ContextApi"],
+	url: "https://github.com/Rocketseat/umbriel",
+	likes: 10
+}
+```
+
+**Certo:**
+
+```jsx
+// Repositório recém criado:
+{
+	id: "c160a99b-9d3b-4669-8a35-8dce1e8196ec",
+	title: "Umbriel",
+	techs: ["React", "ReactNative", "TypeScript", "ContextApi"],
+	url: "https://github.com/Rocketseat/umbriel",
+	likes: 0
+}
+
+// Requisição para alterar informações: 
+// Rota: "/repositories/c160a99b-9d3b-4669-8a35-8dce1e8196ec"
+// Método: PUT
+// Corpo: { title: "Novo título", likes: 10 }
+
+// Retorno:
+
+{
+	id: "c160a99b-9d3b-4669-8a35-8dce1e8196ec",
+	title: "Novo título",
+	techs: ["React", "ReactNative", "TypeScript", "ContextApi"],
+	url: "https://github.com/Rocketseat/umbriel",
+	likes: 0 // A quantidade de likes não mudou
+}
+```
+
+- **Should be able to delete the repository**
+
+Para que esse teste passe, você deve permitir que um repositório seja excluído através do `id` passado pela rota **DELETE** `/repositories/:id`.
+
+- **Should not be able to delete a non existing repository**
+
+Para que esse teste passe, você deve validar se o repositório existe antes de excluí-lo. Caso o repositório não exista, retorne um status `404` com uma mensagem de erro no formato `{ error: "Mensagem do erro" }`.
+
+### Testes de likes
+
+- **Should be able to give a like to the repository**
+
+Para que esse teste passe, deve ser possível incrementar a quantidade de likes em `1` a cada chamada na rota **POST** `/repositories/:id/like`. Use o `id` passado por parâmetro na rota para realizar essa ação.
+
+- **Should not be able to give a like to a non existing repository**
+
+Para que esse teste passe, você deve validar que um repositório existe antes de incrementar a quantidade de likes. Caso não exista, retorne um status `404` com uma mensagem de erro no formato `{ error: "Mensagem do erro" }`.
